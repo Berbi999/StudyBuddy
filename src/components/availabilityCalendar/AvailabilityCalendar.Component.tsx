@@ -1,15 +1,15 @@
-import {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {MdArrowBackIos, MdArrowForwardIos} from 'react-icons/md';
 import OffersData from '../../services/common/Offer.Service';
 import {useRecoilState} from 'recoil';
 import {offerId} from '../../atoms/SelectedOfferId.Atom';
 import {Availability, Requests} from '../../interfaces/Offers.Interface';
-import LoadingSuspense from '../loadingSuspense/LoadingSuspense';
 import {
   requestHourLessonAtom,
   requestModalLessonAtom,
   requestWeekDayLessonAtom,
 } from '../../atoms/RequestLesson.Atom';
+import LoadingSuspense from '../loadingSuspense/LoadingSuspense';
 
 const AvailabilityCalendar = () => {
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -55,6 +55,16 @@ const AvailabilityCalendar = () => {
     setCurrentYear(firstDayOfWeek.getFullYear());
   }, [firstDayValue]);
 
+  const handlePrevWeek = () => {
+    if (firstDayValue >= 7) {
+      setFirstDayValue((prevFirstDayValue) => prevFirstDayValue - 7);
+    }
+  };
+
+  const handleNextWeek = () => {
+    setFirstDayValue((prevFirstDayValue) => prevFirstDayValue + 7);
+  };
+
   const formattedCurrentMonth = currentMonth
     ? `${currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1)}`
     : '';
@@ -85,8 +95,11 @@ const AvailabilityCalendar = () => {
     const fetchAvailability = async () => {
       try {
         setIsLoading(true);
-        const subjectsRes = await OffersData.getAvailability(selectedOfferId);
-        setAvailabilityData(subjectsRes);
+        const availabilityRes = await OffersData.getAvailability(
+          selectedOfferId,
+        );
+        setAvailabilityData(availabilityRes);
+        console.log(availabilityData);
       } catch (error: any) {
         console.error(error.message);
       } finally {
@@ -97,8 +110,8 @@ const AvailabilityCalendar = () => {
     const fetchRequests = async () => {
       try {
         setIsLoading(true);
-        const requestRes = await OffersData.getRequests(selectedOfferId);
-        setRequestedData(requestRes);
+        const requestedData = await OffersData.getRequests(selectedOfferId);
+        setRequestedData(requestedData);
       } catch (error: any) {
         console.error(error.message);
       } finally {
@@ -109,16 +122,6 @@ const AvailabilityCalendar = () => {
     fetchAvailability();
     fetchRequests();
   }, [selectedOfferId]);
-
-  const handlePrevWeek = () => {
-    if (firstDayValue >= 7) {
-      setFirstDayValue((prevFirstDayValue) => prevFirstDayValue - 7);
-    }
-  };
-
-  const handleNextWeek = () => {
-    setFirstDayValue((prevFirstDayValue) => prevFirstDayValue + 7);
-  };
 
   const handleOpenModal = ({
     weekDay,
@@ -150,333 +153,58 @@ const AvailabilityCalendar = () => {
           <MdArrowForwardIos />
         </button>
       </div>
-      {isLoading ? (
-        <div className='ml-20'>
-          <LoadingSuspense />
-        </div>
-      ) : (
-        <div className='flex'>
-          {weekDays.map((weekDay, index) => (
-            <div
-              key={index}
-              className={`flex-1  ${
-                index === 0 ? 'border-l-2 border-[#9c9c9c] -ml-0' : 'mx-1'
-              }
+      <div className='flex'>
+        {weekDays.map((weekDay, index) => (
+          <div
+            key={index}
+            className={`flex-1  ${
+              index === 0 ? 'border-l-2 border-[#9c9c9c] -ml-0' : 'mx-1'
+            }
             ${index === 6 ? 'border-r-2 border-[#9c9c9c] -mr-0' : 'mx-1'}
           `}>
-              <div
-                className={`text-center h-14 pt-2 text-black px-2.5 font-semibold text-k2d border-b-4 mb-3 ${
-                  isToday(weekDay)
-                    ? 'border-b-4 border-b-green-400'
-                    : 'border-b-4 border-b-[#D687F3]'
-                }`}>
-                {weekDay}
-              </div>
-
-              <div>
-                {availabilityData.map((data) => (
-                  <div key={data.id}>
-                    {requestedData.map((request) => (
-                      <div key={request.request_id}>
-                        {data.day.toLowerCase() ===
-                          weekDay.slice(0, 2).toLowerCase() && (
-                          <>
-                            {request.week_day === weekDay ? (
-                              <>
-                                {data.eight && request.hour !== '8:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '8:00'})
-                                    }>
-                                    8:00
-                                  </p>
-                                )}
-                                {data.nine && request.hour !== '9:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '9:00'})
-                                    }>
-                                    9:00
-                                  </p>
-                                )}
-                                {data.ten && request.hour !== '10:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '10:00'})
-                                    }>
-                                    10:00
-                                  </p>
-                                )}
-                                {data.eleven && request.hour !== '11:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '11:00'})
-                                    }>
-                                    11:00
-                                  </p>
-                                )}
-                                {data.twelve && request.hour !== '12:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '12:00'})
-                                    }>
-                                    12:00
-                                  </p>
-                                )}
-                                {data.thirteen && request.hour !== '13:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '13:00'})
-                                    }>
-                                    13:00
-                                  </p>
-                                )}
-                                {data.fourteen && request.hour !== '14:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '14:00'})
-                                    }>
-                                    14:00
-                                  </p>
-                                )}
-                                {data.fifteen && request.hour !== '15:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '15:00'})
-                                    }>
-                                    15:00
-                                  </p>
-                                )}
-                                {data.sixteen && request.hour !== '16:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '16:00'})
-                                    }>
-                                    16:00
-                                  </p>
-                                )}
-                                {data.seventeen && request.hour !== '17:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '17:00'})
-                                    }>
-                                    17:00
-                                  </p>
-                                )}
-                                {data.eighteen && request.hour !== '18:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '18:00'})
-                                    }>
-                                    18:00
-                                  </p>
-                                )}
-                                {data.nineteen && request.hour !== '19:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '19:00'})
-                                    }>
-                                    19:00
-                                  </p>
-                                )}
-                                {data.twenty && request.hour !== '20:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '20:00'})
-                                    }>
-                                    20:00
-                                  </p>
-                                )}
-                                {data.twentyOne && request.hour !== '21:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '21:00'})
-                                    }>
-                                    21:00
-                                  </p>
-                                )}
-                                {data.twentyTwo && request.hour !== '22:00' && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '22:00'})
-                                    }>
-                                    22:00
-                                  </p>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                {data.eight && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '8:00'})
-                                    }>
-                                    8:00
-                                  </p>
-                                )}
-                                {data.nine && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '9:00'})
-                                    }>
-                                    {' '}
-                                    9:00
-                                  </p>
-                                )}
-                                {data.ten && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '10:00'})
-                                    }>
-                                    10:00
-                                  </p>
-                                )}
-                                {data.eleven && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '11:00'})
-                                    }>
-                                    {' '}
-                                    11:00
-                                  </p>
-                                )}
-                                {data.twelve && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '12:00'})
-                                    }>
-                                    {' '}
-                                    12:00
-                                  </p>
-                                )}
-                                {data.thirteen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '13:00'})
-                                    }>
-                                    {' '}
-                                    13:00
-                                  </p>
-                                )}
-                                {data.fourteen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '14:00'})
-                                    }>
-                                    {' '}
-                                    14:00
-                                  </p>
-                                )}
-                                {data.fifteen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '15:00'})
-                                    }>
-                                    {' '}
-                                    15:00
-                                  </p>
-                                )}
-                                {data.sixteen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '16:00'})
-                                    }>
-                                    {' '}
-                                    16:00
-                                  </p>
-                                )}
-                                {data.seventeen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '17:00'})
-                                    }>
-                                    {' '}
-                                    17:00
-                                  </p>
-                                )}
-                                {data.eighteen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '18:00'})
-                                    }>
-                                    18:00
-                                  </p>
-                                )}
-                                {data.nineteen && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '19:00'})
-                                    }>
-                                    19:00
-                                  </p>
-                                )}
-                                {data.twenty && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '20:00'})
-                                    }>
-                                    20:00
-                                  </p>
-                                )}
-                                {data.twentyOne && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '21:00'})
-                                    }>
-                                    21:00
-                                  </p>
-                                )}
-                                {data.twentyTwo && (
-                                  <p
-                                    className={hourStyle}
-                                    onClick={() =>
-                                      handleOpenModal({weekDay, hour: '22:00'})
-                                    }>
-                                    22:00
-                                  </p>
-                                )}
-                              </>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
+            <div className='text-center h-14 pt-2 text-black px-2.5 font-semibold text-k2d border-b-4 border-b-[#D687F3] mb-3'>
+              {weekDay}
             </div>
-          ))}
-        </div>
-      )}
+            <div>
+              {availabilityData.map((data) => (
+                <div key={data.id}>
+                  {data.day.toLowerCase() ===
+                    weekDay.slice(0, 2).toLowerCase() && (
+                    <>
+                      {data.eight &&
+                        requestedData.find(
+                          (req) =>
+                            req.week_day.toLowerCase() ===
+                              data.day.toLowerCase() &&
+                            req.hour !== '8:00',
+                        ) && <p className={hourStyle}>8:00</p>}
+                      {/* {data.eight && (
+                      <p className={hourStyle}>
+                        8:00
+                      </p>
+                    )} */}
+                      {data.nine && <p className={hourStyle}>9:00</p>}
+                      {data.ten && <p className={hourStyle}>10:00</p>}
+                      {data.eleven && <p className={hourStyle}>11:00</p>}
+                      {data.twelve && <p className={hourStyle}>12:00</p>}
+                      {data.thirteen && <p className={hourStyle}>13:00</p>}
+                      {data.fourteen && <p className={hourStyle}>14:00</p>}
+                      {data.fifteen && <p className={hourStyle}>15:00</p>}
+                      {data.sixteen && <p className={hourStyle}>16:00</p>}
+                      {data.seventeen && <p className={hourStyle}>17:00</p>}
+                      {data.eighteen && <p className={hourStyle}>18:00</p>}
+                      {data.nineteen && <p className={hourStyle}>19:00</p>}
+                      {data.twenty && <p className={hourStyle}>20:00</p>}
+                      {data.twentyOne && <p className={hourStyle}>21:00</p>}
+                      {data.twentyTwo && <p className={hourStyle}>22:00</p>}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

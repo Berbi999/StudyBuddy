@@ -1,16 +1,16 @@
-import { useRecoilState } from 'recoil';
-import { offerId } from '../../atoms/SelectedOfferId.Atom';
-import { useEffect, useState } from 'react';
+import {useRecoilState} from 'recoil';
+import {offerId} from '../../atoms/SelectedOfferId.Atom';
+import {useEffect, useState} from 'react';
 import OffersData from '../../services/common/Offer.Service';
-import { Offer } from '../../interfaces/Offers.Interface';
-import { DarkModeAtom } from '../../atoms/DarkMode.Atom';
+import {Offer} from '../../interfaces/Offers.Interface';
+import {DarkModeAtom} from '../../atoms/DarkMode.Atom';
 import LoadingSuspense from '../../components/loadingSuspense/LoadingSuspense';
-import { MdOutlinePlayLesson } from 'react-icons/md';
-import { LuGraduationCap } from 'react-icons/lu';
-import { FaRegClock, FaRegMoneyBillAlt } from 'react-icons/fa';
+import {MdOutlinePlayLesson} from 'react-icons/md';
+import {LuGraduationCap} from 'react-icons/lu';
+import {FaRegClock, FaRegMoneyBillAlt} from 'react-icons/fa';
 import AvailabilityCalendar from '../../components/availabilityCalendar/AvailabilityCalendar.Component';
 import ContactModal from '../../components/modal/ContactModal.Component';
-
+import { bottomBarClosed } from '../../atoms/BottomBarClosed.Atom';
 
 const CDNURL =
   'https://kgejrkbokmzmryqkyial.supabase.co/storage/v1/object/public/avatars/';
@@ -20,6 +20,8 @@ const OfferDetailsPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [offerData, setOfferData] = useState<Offer[]>([]);
   const [isDarkMode] = useRecoilState(DarkModeAtom);
+  const [, setIsBottomBarClosed] = useRecoilState(bottomBarClosed);
+
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -37,14 +39,22 @@ const OfferDetailsPage = () => {
     fetchOffers();
   }, [selectedOfferId]);
 
+  
+  useEffect(() => {
+    setIsBottomBarClosed(true);
+  }, [setIsBottomBarClosed]);
+
   return (
-    <div className='relative min-h-screen mx-[8%]'>
+    <div
+      className={`relative min-h-screen max-h-screen mx-[8%] ${
+        isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'
+      }`}>
       {isLoading ? (
-        <div className='ml-20'>
+        <div>
           <LoadingSuspense />
         </div>
       ) : (
-        <div className='relative mt-8'>
+        <div className='relative pt-8'>
           {offerData.map((offer, index) => (
             <div key={index}>
               <div>
@@ -95,16 +105,22 @@ const OfferDetailsPage = () => {
               <hr className='w-full h-[1px] bg-black opacity-20' />
               <div>
                 <p className='flex font-semibold text-md'>
-                  Poziom Nauczania: <p className='font-normal pl-2'>{offer.education_level}</p>
+                  Poziom Nauczania:{' '}
+                  <p className='font-normal pl-2'>{offer.education_level}</p>
                 </p>
                 <p className='flex font-semibold text-md'>
                   Lokalizacja: <p className='font-normal pl-2'>{offer.city}</p>
                 </p>
                 <p className='flex font-semibold text-md'>
-                  Forma Nauki: <p className='font-normal pl-2'>{offer.education_method}</p>
+                  Forma Nauki:{' '}
+                  <p className='font-normal pl-2'>{offer.education_method}</p>
                 </p>
               </div>
-              <ContactModal profilePic={offer.profile?.avatar_url} name={offer.profile?.name} surname={offer.profile?.surname}/>
+              <ContactModal
+                profilePic={offer.profile?.avatar_url}
+                name={offer.profile?.name}
+                surname={offer.profile?.surname}
+              />
             </div>
           ))}
         </div>

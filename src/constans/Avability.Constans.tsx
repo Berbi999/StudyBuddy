@@ -23,6 +23,6 @@ export const AvabilityDays: {id: number; name: string}[] = [
   {id: 4, name: 'Czw.'},
   {id: 5, name: 'Pt.'},
   {id: 6, name: 'Sob.'},
-  {id: 7, name: 'Niedz.'},
+  {id: 7, name: 'Nd.'},
 ];
 

@@ -25,6 +25,7 @@ export interface Offer {
 
 export interface Availability {
   id: number;
+  offer_id: string;
   day: string;
   eight: boolean;
   nine: boolean;
@@ -41,7 +42,6 @@ export interface Availability {
   twenty: boolean;
   twentyOne: boolean;
   twentyTwo: boolean;
-  offer_id: string;
 }
 
 export interface Requests {

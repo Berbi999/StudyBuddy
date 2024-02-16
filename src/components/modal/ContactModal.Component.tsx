@@ -9,7 +9,7 @@ interface ContactModalProps {
   surname: any;
 }
 
-const ContactModal: React.FC<ContactModalProps> = ({}) => {
+const ContactModal: React.FC<ContactModalProps> = ({ profilePic, name, surname }) => {
   const [isDarkMode] = useRecoilState(DarkModeAtom);
   const [showModal] = useRecoilState<boolean>(requestModalLessonAtom);
 
